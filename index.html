@@ -136,38 +136,12 @@
       <button class="btn primary sm" onclick="saveSheet()">Lưu lên Google Sheet</button>
     </div>
     <div id="saveMsg" class="ok" style="margin-top:6px"></div>
-    <label style="margin-top:10px">Google Apps Script URL (để lưu lên Drive)</label>
-    <input id="gsUrl" placeholder="Dán link Web App ở đây (xem hướng dẫn dưới)">
     <div class="log"><div style="font-size:12px;font-weight:700;margin-bottom:5px">Nhật ký đã lưu (phiên này)</div><div id="logList"><span class="hint">Chưa có.</span></div></div>
-    <details>
-      <summary>Hướng dẫn: cả team lưu chung về 1 Google Sheet (~5 phút, không cần API)</summary>
-      <ol>
-        <li>Tạo 1 <b>Google Sheet</b> mới trong Drive của bạn.</li>
-        <li>Menu <b>Extensions → Apps Script</b>, xoá code cũ, dán đoạn dưới, bấm <b>Save</b>.</li>
-        <li><b>Deploy → New deployment →</b> chọn type <b>Web app</b> · Execute as: <b>Me</b> · Who has access: <b>Anyone</b> → Deploy → copy <b>Web app URL</b>.</li>
-        <li>Dán URL vào dòng <b>const GS_URL="..."</b> ở đầu phần &lt;script&gt; (để <b>cả team dùng chung 1 Sheet</b>, khỏi phải tự dán) — hoặc dán vào ô "Google Apps Script URL" ở trên nếu chỉ dùng riêng.</li>
-        <li>Bấm <b>Lưu lên Google Sheet</b> → mỗi phiếu thành 1 dòng trong Sheet (nằm trong Drive của bạn).</li>
-      </ol>
-      <pre>function doPost(e){
-  var lock = LockService.getScriptLock();   // tránh ghi đè khi nhiều người lưu cùng lúc
-  lock.waitLock(20000);
-  try {
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sh = ss.getSheetByName('SoVan') || ss.insertSheet('SoVan');
-    if (sh.getLastRow() === 0)
-      sh.appendRow(['Thời gian','Vị trí','Ứng viên','Người sơ vấn','Ngày','Điểm','Kết luận','Chi tiết']);
-    var d = JSON.parse(e.postData.contents);
-    sh.appendRow([new Date(), d.vitri, d.ten, d.nguoi, d.ngay, d.diem, d.ketluan, d.chitiet]);
-    return ContentService.createTextOutput('ok');
-  } finally { lock.releaseLock(); }
-}</pre>
-      <p class="hint">Lưu ý: do trình duyệt chặn (CORS), trang không đọc được phản hồi — nên sau khi bấm, kiểm tra Sheet để chắc chắn đã có dòng mới. Nếu chưa muốn set up, cứ dùng <b>Tải JSON</b> rồi kéo file vào thư mục Drive.</p>
-    </details>
   </div>
 </div>
 
 <script>
-const GS_URL="https://script.google.com/macros/s/AKfycbyU8jcz_-NrGJAwtRfhjg5k9MccUy_fyXIb04KgfKA9xEs6lvEB4_1E67nbVbztCrLN0w/exec"; /* <<< DÁN LINK WEB APP VÀO GIỮA 2 DẤU "" (1 lần) → cả team lưu chung về 1 Google Sheet, không ai phải tự dán. */
+const GS_URL="https://script.google.com/macros/s/AKfycbyU8jcz_-NrGJAwtRfhjg5k9MccUy_fyXIb04KgfKA9xEs6lvEB4_1E67nbVbztCrLN0w/exec"; /* Link Web App da gan san - du lieu luu ve Google Sheet chung. */
 const MAU={
   vitri:"Nhân viên bán hàng · [cửa hàng]",
   lc:["Nhận làm ca xoay theo lịch cửa hàng (gồm ca tối đến [giờ])",
@@ -260,8 +234,8 @@ function payload(){const r=result();return{vitri:val('cd_vitri'),ten:val('f_ten'
   diem:r.diem?r.diem.toFixed(2):'',ketluan:r.v,chitiet:summaryText()};}
 function downloadJSON(){const p=payload();const blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`sovan_${(p.ten||'uv').replace(/\s+/g,'-')}_${Date.now()}.json`;a.click();addLog(p,'tải file');}
-function saveSheet(){const url=val('gsUrl')||GS_URL;const p=payload();
-  if(!url){alert('Chưa có Google Apps Script URL. Xem hướng dẫn ở dưới, hoặc dùng "Tải JSON".');return;}
+function saveSheet(){const url=GS_URL;const p=payload();
+  if(!url){alert('Chưa cấu hình nơi lưu. Hãy dùng nút "Tải JSON".');return;}
   fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)})
     .then(()=>{document.getElementById('saveMsg').textContent='✓ Đã gửi lên Sheet — mở Sheet kiểm tra dòng mới.';addLog(p,'Sheet');})
     .catch(()=>{document.getElementById('saveMsg').textContent='Gửi xong (không đọc được phản hồi do CORS) — kiểm tra Sheet.';addLog(p,'Sheet');});}
@@ -307,7 +281,7 @@ function fillFromAI(){let raw=(document.getElementById('aiResult').value||'').tr
   cd.tc=o.tieuChi.map(t=>({ten:t.ten||'',nhom:['Want to','Can do','Culture fit'].includes(t.nhom)?t.nhom:'Want to',w:parseInt(t.w)||0,hoi:t.hoi||'',tot:t.tot||'',xau:t.xau||''}));
   renderCD();showAiMsg('✓ Đã tự điền chân dung. Kiểm tra lại rồi bấm "Đẩy vào phiếu →".',false);}
 document.getElementById('aiPrompt').value=AIPROMPT;
-if(GS_URL){var gu=document.getElementById('gsUrl');gu.value=GS_URL;gu.readOnly=true;}
+
 loadMau();pushToForm();
 </script>
 </body>
