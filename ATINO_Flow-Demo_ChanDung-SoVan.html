@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ATINO · Flow Chân dung → Sơ vấn → Lưu</title>
+<style>
+  :root{--bg:#F4F5F7;--card:#fff;--line:#E3E6EB;--ink:#1F2329;--sub:#646A73;--blue:#2E6BE6;--bluebg:#EAF1FD;
+    --green:#1A9E62;--greenbg:#E6F5EE;--amber:#C77700;--amberbg:#FDF3E2;--red:#D54941;--redbg:#FCEBEA;--purple:#6D4AE6;--purplebg:#EEE9FD}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink);font-size:14px}
+  header.app{background:#1F2329;color:#fff;padding:12px 18px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  header.app .t{font-size:17px;font-weight:700}
+  header.app .s{font-size:12px;color:#C9CDD4}
+  .steps{display:flex;gap:6px;margin-left:auto;font-size:11.5px}
+  .steps span{background:#2E3238;color:#C9CDD4;border-radius:999px;padding:4px 10px}
+  .cols{display:flex;gap:12px;padding:12px;align-items:flex-start;flex-wrap:wrap}
+  .col{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;flex:1;min-width:320px}
+  .col.mid{flex:1.3}
+  .col h2{font-size:14px;margin:0 0 3px;font-weight:700;display:flex;align-items:center;gap:7px}
+  .dot{width:20px;height:20px;border-radius:999px;color:#fff;font-size:12px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+  .d1{background:var(--purple)}.d2{background:var(--blue)}.d3{background:var(--green)}
+  .hint{font-size:12px;color:var(--sub);margin:0 0 10px;line-height:1.5}
+  label{display:block;font-size:11.5px;color:var(--sub);margin:8px 0 3px}
+  input,select,textarea{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:8px;font-size:13px;color:var(--ink);background:#fff;font-family:inherit}
+  input:focus,textarea:focus,select:focus{outline:2px solid var(--bluebg);border-color:var(--blue)}
+  textarea{resize:vertical}
+  .btn{border:none;border-radius:9px;padding:9px 12px;font-size:13px;font-weight:700;cursor:pointer}
+  .btn.primary{background:var(--blue);color:#fff}.btn.purple{background:var(--purple);color:#fff}
+  .btn.green{background:var(--green);color:#fff}.btn.ghost{background:#fff;border:1px solid var(--line);color:var(--sub)}
+  .btn.sm{padding:6px 10px;font-size:12px}
+  .rowflex{display:flex;gap:6px;flex-wrap:wrap}
+  .lcrow,.tcrow{border:1px solid var(--line);border-radius:9px;padding:8px;margin-bottom:7px;background:#FAFBFC}
+  .tcrow .grid{display:grid;grid-template-columns:1fr 92px 60px;gap:6px}
+  .x{color:var(--red);cursor:pointer;font-weight:700;font-size:13px;border:none;background:none;padding:0 4px}
+  /* middle */
+  .lc{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px dashed var(--line)}
+  .lc .q{font-size:12.5px;flex:1;line-height:1.4}
+  .toggle button{border:1px solid var(--line);background:#fff;color:var(--sub);border-radius:999px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;margin-left:4px}
+  .toggle .on-pass{background:var(--greenbg);border-color:var(--green);color:var(--green)}
+  .toggle .on-fail{background:var(--redbg);border-color:var(--red);color:var(--red)}
+  .crit{padding:9px 0;border-bottom:1px solid var(--line)}
+  .crit .top{display:flex;justify-content:space-between;gap:6px;align-items:baseline}
+  .crit .name{font-size:13px;font-weight:700}
+  .tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:999px;background:var(--bluebg);color:var(--blue);white-space:nowrap}
+  .ask{font-size:12px;background:#F7F8FA;border-left:3px solid var(--blue);padding:6px 9px;border-radius:0 7px 7px 0;margin:6px 0;line-height:1.45}
+  .sig{font-size:11px;color:var(--sub);margin-bottom:6px}.sig b.g{color:var(--green)}.sig b.r{color:var(--red)}
+  .sb{display:flex;gap:5px}.sb button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 0;font-size:14px;font-weight:700;cursor:pointer}
+  .sb button small{display:block;font-size:9px;font-weight:500;color:var(--sub)}
+  .sb button.sel{background:var(--blue);border-color:var(--blue);color:#fff}.sb button.sel small{color:#DCE7FB}
+  .sb button.selq{background:#5B636E;border-color:#5B636E;color:#fff}
+  .ev{margin-top:6px;min-height:34px;font-size:12px}
+  .scorebox{display:flex;align-items:center;gap:10px;background:#1F2329;color:#fff;border-radius:10px;padding:10px 12px;margin-top:10px}
+  .scorebox b{font-size:20px}
+  .verdict{font-size:14px;font-weight:800;padding:5px 11px;border-radius:8px;background:#3a3f45;color:#C9CDD4}
+  .verdict.dat{background:var(--greenbg);color:var(--green)}.verdict.can{background:var(--amberbg);color:var(--amber)}.verdict.loai{background:var(--redbg);color:var(--red)}
+  /* right */
+  .sumout{width:100%;min-height:200px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;line-height:1.5}
+  .log{margin-top:10px;font-size:12px}
+  .log .item{border:1px solid var(--line);border-radius:8px;padding:7px 9px;margin-bottom:6px;display:flex;justify-content:space-between;gap:8px}
+  .log .item .v{font-weight:700}
+  details{margin-top:10px;border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:#FAFBFC}
+  summary{cursor:pointer;font-weight:700;font-size:12.5px;color:var(--blue)}
+  details code,details pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px;white-space:pre-wrap;background:#1F2329;color:#E8EAED;display:block;padding:9px;border-radius:7px;margin:7px 0;overflow:auto}
+  details ol{margin:6px 0 2px 18px;font-size:12px;line-height:1.6}
+  .ok{color:var(--green);font-size:12px;font-weight:700}
+  @media (prefers-color-scheme: dark){
+    :root{--bg:#1A1B1E;--card:#25272B;--line:#3A3D42;--ink:#E8EAED;--sub:#A3A8B0;--bluebg:#1E2E4D;--greenbg:#15372A;--amberbg:#3A2E16;--redbg:#3C2220;--purplebg:#241C47}
+    input,select,textarea,.sb button,.toggle button,.lcrow,.tcrow,details{background:#2D3036;color:var(--ink)}.ask{background:#2D3036}
+  }
+</style>
+</head>
+<body>
+<header class="app">
+  <div><div class="t">ATINO · Flow demo</div><div class="s">Chân dung → Phiếu sơ vấn → Lưu (1 trang, không cần backend)</div></div>
+  <div class="steps"><span>① Chân dung</span><span>② Sơ vấn</span><span>③ Lưu</span></div>
+</header>
+
+<div class="cols">
+  <!-- CỘT 1 -->
+  <div class="col">
+    <h2><span class="dot d1">1</span> Chân dung ứng viên</h2>
+    <p class="hint">Điền chân dung (hoặc dán từ AI), rồi bấm <b>Đẩy vào phiếu →</b>. Phiếu ở giữa sẽ tự dựng theo chân dung này.</p>
+    <label>Vị trí · khu vực</label>
+    <input id="cd_vitri" value="Nhân viên bán hàng · [cửa hàng]">
+    <label>Loại cứng — điều kiện BẮT BUỘC (Có/Không)</label>
+    <p class="hint" style="margin:-2px 0 6px">Những thứ thiếu 1 là loại ngay, không cần chấm điểm. VD: nhận ca xoay/ca tối · ở gần nơi làm · đi làm được đúng ngày · lương mong muốn trong khoảng. <b>Chỉ đặt 3–4 cái</b> — nhiều quá sẽ mất nguồn.</p>
+    <div id="cd_lc"></div>
+    <button class="btn ghost sm" onclick="addLC()">+ Thêm loại cứng</button>
+    <label style="margin-top:12px">Tiêu chí chấm điểm — theo nhóm CWC</label>
+    <p class="hint" style="margin:-2px 0 6px"><b>CWC</b> = 3 nhóm cần nhìn ở ứng viên: <b>Can do</b> (làm được việc không) · <b>Want to</b> (có muốn làm &amp; gắn bó lâu không) · <b>Culture fit</b> (thái độ/hợp văn hoá không). Sơ vấn <b>nặng Want to</b>; Can do &amp; Culture fit chỉ lấy tín hiệu (HM kiểm sâu). Đặt <b>4–6 tiêu chí</b>, cột % cộng lại = <b>100</b>. Câu hỏi nên bắt đầu bằng “Kể về một lần…”.</p>
+    <div id="cd_tc"></div>
+    <button class="btn ghost sm" onclick="addTC()">+ Thêm tiêu chí</button>
+    <div class="rowflex" style="margin-top:12px">
+      <button class="btn ghost sm" onclick="loadMau()">Dùng mẫu NV bán hàng</button>
+      <button class="btn purple" onclick="pushToForm()">Đẩy vào phiếu →</button>
+    </div>
+    <details open>
+      <summary>⚡ Cách nhanh: dùng AI tạo chân dung từ JD</summary>
+      <p class="hint" style="margin-top:7px">3 bước, không cần biết gì: <b>(1)</b> bấm <b>Copy prompt</b>. <b>(2)</b> Mở Claude/ChatGPT, dán prompt, thay chữ <b>[DÁN JD VÀO ĐÂY]</b> bằng JD của bạn → gửi. <b>(3)</b> Copy TOÀN BỘ kết quả AI, dán xuống ô "Kết quả AI" → bấm <b>Tự điền vào form</b>. Form tự điền, bạn KHÔNG phải copy từng ô.</p>
+      <label>Prompt (đã viết sẵn — chỉ việc copy)</label>
+      <textarea id="aiPrompt" readonly rows="6" style="font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11px"></textarea>
+      <button class="btn ghost sm" id="pBtn" onclick="copyPrompt()">Copy prompt</button>
+      <label style="margin-top:10px">Kết quả AI (dán nguyên vào đây)</label>
+      <textarea id="aiResult" rows="4" placeholder="Dán nguyên phần AI trả về — kể cả có chữ thừa cũng được"></textarea>
+      <button class="btn purple sm" onclick="fillFromAI()">Tự điền vào form</button>
+      <div id="aiMsg" class="ok" style="margin-top:6px"></div>
+    </details>
+  </div>
+
+  <!-- CỘT 2 -->
+  <div class="col mid">
+    <h2><span class="dot d2">2</span> Phiếu sơ vấn</h2>
+    <div class="rowflex">
+      <input id="f_ten" placeholder="Ứng viên / Mã" style="flex:1 1 120px">
+      <input id="f_nguoi" placeholder="Người sơ vấn" style="flex:1 1 110px">
+      <input id="f_ngay" placeholder="Ngày (dd/mm)" style="flex:1 1 90px">
+    </div>
+    <div id="f_lcwrap" style="margin-top:8px"><div style="font-size:12px;font-weight:700;color:var(--blue);margin-bottom:4px">Loại cứng</div><div id="f_lc"></div></div>
+    <div style="font-size:12px;font-weight:700;color:var(--blue);margin:12px 0 2px">Hỏi &amp; chấm</div>
+    <p class="hint" style="margin:0 0 6px">Hỏi câu trong ô → bấm 1–4 (chưa rõ bấm ?). Thang: 4 nổi bật · 3 đạt · 2 cần xem · 1 chưa đạt.</p>
+    <div id="f_crit"></div>
+    <div class="scorebox"><div>Điểm tổng<br><b id="f_diem">—</b></div><div class="verdict" id="f_verdict">Chưa chấm</div></div>
+  </div>
+
+  <!-- CỘT 3 -->
+  <div class="col">
+    <h2><span class="dot d3">3</span> Kết quả &amp; Lưu</h2>
+    <label>Đề xuất gửi HM</label>
+    <textarea id="f_dexuat" rows="2" placeholder="VD: Muốn làm rõ, giao tiếp ổn → cho PV quản lý cửa hàng; HM kiểm kỹ năng chốt đơn."></textarea>
+    <label style="margin-top:8px">Tóm tắt (tự cập nhật)</label>
+    <textarea id="sumout" class="sumout" readonly></textarea>
+    <div class="rowflex" style="margin-top:8px">
+      <button class="btn ghost sm" onclick="copySum()" id="copyBtn">Copy</button>
+      <button class="btn green sm" onclick="downloadJSON()">Tải JSON</button>
+      <button class="btn primary sm" onclick="saveSheet()">Lưu lên Google Sheet</button>
+    </div>
+    <div id="saveMsg" class="ok" style="margin-top:6px"></div>
+    <label style="margin-top:10px">Google Apps Script URL (để lưu lên Drive)</label>
+    <input id="gsUrl" placeholder="Dán link Web App ở đây (xem hướng dẫn dưới)">
+    <div class="log"><div style="font-size:12px;font-weight:700;margin-bottom:5px">Nhật ký đã lưu (phiên này)</div><div id="logList"><span class="hint">Chưa có.</span></div></div>
+    <details>
+      <summary>Hướng dẫn: cả team lưu chung về 1 Google Sheet (~5 phút, không cần API)</summary>
+      <ol>
+        <li>Tạo 1 <b>Google Sheet</b> mới trong Drive của bạn.</li>
+        <li>Menu <b>Extensions → Apps Script</b>, xoá code cũ, dán đoạn dưới, bấm <b>Save</b>.</li>
+        <li><b>Deploy → New deployment →</b> chọn type <b>Web app</b> · Execute as: <b>Me</b> · Who has access: <b>Anyone</b> → Deploy → copy <b>Web app URL</b>.</li>
+        <li>Dán URL vào dòng <b>const GS_URL="..."</b> ở đầu phần &lt;script&gt; (để <b>cả team dùng chung 1 Sheet</b>, khỏi phải tự dán) — hoặc dán vào ô "Google Apps Script URL" ở trên nếu chỉ dùng riêng.</li>
+        <li>Bấm <b>Lưu lên Google Sheet</b> → mỗi phiếu thành 1 dòng trong Sheet (nằm trong Drive của bạn).</li>
+      </ol>
+      <pre>function doPost(e){
+  var lock = LockService.getScriptLock();   // tránh ghi đè khi nhiều người lưu cùng lúc
+  lock.waitLock(20000);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sh = ss.getSheetByName('SoVan') || ss.insertSheet('SoVan');
+    if (sh.getLastRow() === 0)
+      sh.appendRow(['Thời gian','Vị trí','Ứng viên','Người sơ vấn','Ngày','Điểm','Kết luận','Chi tiết']);
+    var d = JSON.parse(e.postData.contents);
+    sh.appendRow([new Date(), d.vitri, d.ten, d.nguoi, d.ngay, d.diem, d.ketluan, d.chitiet]);
+    return ContentService.createTextOutput('ok');
+  } finally { lock.releaseLock(); }
+}</pre>
+      <p class="hint">Lưu ý: do trình duyệt chặn (CORS), trang không đọc được phản hồi — nên sau khi bấm, kiểm tra Sheet để chắc chắn đã có dòng mới. Nếu chưa muốn set up, cứ dùng <b>Tải JSON</b> rồi kéo file vào thư mục Drive.</p>
+    </details>
+  </div>
+</div>
+
+<script>
+const GS_URL="https://script.google.com/macros/s/AKfycbyU8jcz_-NrGJAwtRfhjg5k9MccUy_fyXIb04KgfKA9xEs6lvEB4_1E67nbVbztCrLN0w/exec"; /* <<< DÁN LINK WEB APP VÀO GIỮA 2 DẤU "" (1 lần) → cả team lưu chung về 1 Google Sheet, không ai phải tự dán. */
+const MAU={
+  vitri:"Nhân viên bán hàng · [cửa hàng]",
+  lc:["Nhận làm ca xoay theo lịch cửa hàng (gồm ca tối đến [giờ])",
+      "Đi lại thuận tiện tới cửa hàng [khu vực]",
+      "Bắt đầu đi làm được đúng thời gian công ty cần",
+      "Mức thu nhập mong muốn nằm trong khoảng công ty trả"],
+  tc:[
+    {ten:"Động lực chọn việc bán hàng",nhom:"Want to",w:25,hoi:"Vì sao em ứng tuyển vị trí bán hàng ở ATINO?",tot:"lý do rõ, gắn với bán hàng",xau:"tạm bợ, 'ai nhận cũng được'"},
+    {ten:"Gắn bó với công việc",nhom:"Want to",w:20,hoi:"Công việc em làm lâu nhất ở đâu? Vì sao em nghỉ?",tot:"có gắn bó, lý do hợp lý",xau:"nhảy việc liên tục"},
+    {ten:"Xử lý khách (tín hiệu)",nhom:"Can do",w:20,hoi:"Kể về một lần em gặp khách đang bực. Em đã làm gì?",tot:"kể tình huống thật, giữ khách",xau:"lý thuyết, đổ lỗi khách"},
+    {ten:"Giao tiếp khi nói chuyện",nhom:"Can do",w:20,hoi:"(Quan sát) Em trả lời rõ ràng, chủ động không?",tot:"rõ ràng, chủ động",xau:"lí nhí, cộc lốc"},
+    {ten:"Thái độ & trung thực (tín hiệu)",nhom:"Culture fit",w:15,hoi:"Qua cách kể: có tinh thần phục vụ, dám nhận cái khó không?",tot:"chân thành, cầu thị",xau:"né tránh, giấu lỗi"}]
+};
+let cd={vitri:"",lc:[],tc:[]};
+let form={lc:[],sc:[],ev:[]};
+let log=[];
+
+function renderCD(){
+  document.getElementById('cd_vitri').value=cd.vitri;
+  const lcBox=document.getElementById('cd_lc');lcBox.innerHTML='';
+  cd.lc.forEach((t,i)=>{const d=document.createElement('div');d.className='lcrow';
+    d.innerHTML=`<div style="display:flex;gap:6px"><input value="${esc(t)}" oninput="cd.lc[${i}]=this.value"><button class="x" onclick="cd.lc.splice(${i},1);renderCD()">✕</button></div>`;lcBox.appendChild(d);});
+  const tcBox=document.getElementById('cd_tc');tcBox.innerHTML='';
+  cd.tc.forEach((c,i)=>{const d=document.createElement('div');d.className='tcrow';
+    d.innerHTML=`<div style="display:flex;gap:6px;align-items:center"><input value="${esc(c.ten)}" oninput="cd.tc[${i}].ten=this.value" placeholder="Tên tiêu chí" style="flex:1"><button class="x" onclick="cd.tc.splice(${i},1);renderCD()">✕</button></div>
+    <div class="grid" style="margin-top:6px">
+      <input value="${esc(c.hoi)}" oninput="cd.tc[${i}].hoi=this.value" placeholder="Câu hỏi hành vi">
+      <select onchange="cd.tc[${i}].nhom=this.value">${['Want to','Can do','Culture fit'].map(n=>`<option ${n===c.nhom?'selected':''}>${n}</option>`).join('')}</select>
+      <input type="number" value="${c.w}" oninput="cd.tc[${i}].w=+this.value||0" placeholder="%">
+    </div>`;tcBox.appendChild(d);});
+}
+function addLC(){cd.lc.push("");renderCD();}
+function addTC(){cd.tc.push({ten:"",nhom:"Want to",w:10,hoi:"",tot:"",xau:""});renderCD();}
+function loadMau(){cd=JSON.parse(JSON.stringify(MAU));renderCD();}
+function syncCDfromInputs(){cd.vitri=document.getElementById('cd_vitri').value;}
+
+function pushToForm(){
+  syncCDfromInputs();
+  form.lc=cd.lc.map(()=>null); form.sc=cd.tc.map(()=>null); form.ev=cd.tc.map(()=>"");
+  // loại cứng
+  const lcBox=document.getElementById('f_lc');lcBox.innerHTML='';
+  cd.lc.forEach((q,i)=>{const row=document.createElement('div');row.className='lc';
+    row.innerHTML=`<div class="q">${esc(q)}</div><div class="toggle"><button onclick="setLC(${i},true,this)">Đạt</button><button onclick="setLC(${i},false,this)">Trượt</button></div>`;lcBox.appendChild(row);});
+  // tiêu chí
+  const cBox=document.getElementById('f_crit');cBox.innerHTML='';
+  cd.tc.forEach((c,i)=>{const d=document.createElement('div');d.className='crit';
+    const sig=(c.tot||c.xau)?`<div class="sig"><b class="g">Tốt:</b> ${esc(c.tot||'—')} · <b class="r">Cờ đỏ:</b> ${esc(c.xau||'—')}</div>`:'';
+    d.innerHTML=`<div class="top"><span class="name">${esc(c.ten||'(chưa đặt tên)')}</span><span class="tag">${esc(c.nhom)} · ${c.w}%</span></div>
+      <div class="ask">💬 ${esc(c.hoi||'(chưa có câu hỏi)')}</div>${sig}
+      <div class="sb">${[1,2,3,4].map(n=>`<button onclick="setSC(${i},${n},this)">${n}</button>`).join('')}<button onclick="setSC(${i},'?',this)">?<small>chưa rõ</small></button></div>
+      <textarea class="ev" placeholder="Bằng chứng (1 dòng) — không bắt buộc" oninput="form.ev[${i}]=this.value"></textarea>`;cBox.appendChild(d);});
+  calc();
+  document.querySelector('.col.mid').scrollIntoView({behavior:'smooth',block:'start'});
+}
+function setLC(i,v,btn){form.lc[i]=v;const g=btn.parentElement.querySelectorAll('button');g.forEach(x=>x.className='');btn.className=v?'on-pass':'on-fail';calc();}
+function setSC(i,v,btn){form.sc[i]=(v==='?')?'?':+v;const g=btn.parentElement.querySelectorAll('button');g.forEach(x=>x.className='');btn.className=(v==='?')?'selq':'sel';calc();}
+
+function result(){
+  const failed=form.lc.includes(false);let num=0,den=0;
+  cd.tc.forEach((c,i)=>{if(typeof form.sc[i]==='number'){num+=c.w*form.sc[i];den+=c.w;}});
+  const diem=den>0?num/den:null;
+  let v='Chưa chấm',cls='';
+  if(failed){v='LOẠI (trượt loại cứng)';cls='loai';}
+  else if(diem===null){v='Chưa chấm';}
+  else if(diem<2.5){v='LOẠI';cls='loai';}
+  else if(diem<3){v='CÂN NHẮC';cls='can';}
+  else{v='ĐẠT';cls='dat';}
+  return {failed,diem,v,cls};
+}
+function calc(){const r=result();document.getElementById('f_diem').textContent=r.diem?r.diem.toFixed(2):'—';
+  const ve=document.getElementById('f_verdict');ve.textContent=r.v;ve.className='verdict '+r.cls;updateSum();}
+function val(id){return (document.getElementById(id).value||'').trim();}
+function summaryText(){
+  const r=result();let s=`PHIẾU SƠ VẤN — ${val('cd_vitri')||'[vị trí]'}\n`;
+  s+=`Ứng viên: ${val('f_ten')||'—'} · Người sơ vấn: ${val('f_nguoi')||'—'} · Ngày: ${val('f_ngay')||'—'}\n\nLOẠI CỨNG:\n`;
+  cd.lc.forEach((q,i)=>{s+=`  ${form.lc[i]===null?'[ ]':(form.lc[i]?'[Đạt]':'[TRƯỢT]')} ${q.replace(/\[.*?\]/g,'').trim()}\n`;});
+  s+=`\nCHẤM ĐIỂM:\n`;
+  cd.tc.forEach((c,i)=>{const sc=form.sc[i]==null?'—':form.sc[i];s+=`  • ${c.ten} (${c.nhom} ${c.w}%): ${sc}${form.ev[i]?' — '+form.ev[i]:''}\n`;});
+  s+=`\nĐIỂM TỔNG: ${r.diem?r.diem.toFixed(2):'—'}  →  KẾT LUẬN: ${r.v}\n`;
+  const dx=val('f_dexuat');if(dx)s+=`\nĐề xuất gửi HM: ${dx}\n`;
+  return s;
+}
+function updateSum(){document.getElementById('sumout').value=summaryText();}
+['f_ten','f_nguoi','f_ngay','f_dexuat','cd_vitri'].forEach(id=>document.addEventListener('input',e=>{if(e.target.id===id)updateSum();}));
+
+function copySum(){const t=document.getElementById('sumout');t.select();
+  const done=()=>{const b=document.getElementById('copyBtn');b.textContent='✓ Đã copy';setTimeout(()=>b.textContent='Copy',1500);};
+  navigator.clipboard?navigator.clipboard.writeText(t.value).then(done).catch(()=>{document.execCommand('copy');done();}):(document.execCommand('copy'),done());}
+function payload(){const r=result();return{vitri:val('cd_vitri'),ten:val('f_ten'),nguoi:val('f_nguoi'),ngay:val('f_ngay'),
+  diem:r.diem?r.diem.toFixed(2):'',ketluan:r.v,chitiet:summaryText()};}
+function downloadJSON(){const p=payload();const blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`sovan_${(p.ten||'uv').replace(/\s+/g,'-')}_${Date.now()}.json`;a.click();addLog(p,'tải file');}
+function saveSheet(){const url=val('gsUrl')||GS_URL;const p=payload();
+  if(!url){alert('Chưa có Google Apps Script URL. Xem hướng dẫn ở dưới, hoặc dùng "Tải JSON".');return;}
+  fetch(url,{method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(p)})
+    .then(()=>{document.getElementById('saveMsg').textContent='✓ Đã gửi lên Sheet — mở Sheet kiểm tra dòng mới.';addLog(p,'Sheet');})
+    .catch(()=>{document.getElementById('saveMsg').textContent='Gửi xong (không đọc được phản hồi do CORS) — kiểm tra Sheet.';addLog(p,'Sheet');});}
+function addLog(p,how){log.unshift({...p,how,t:new Date().toLocaleTimeString('vi')});
+  const el=document.getElementById('logList');el.innerHTML=log.map(x=>`<div class="item"><span>${esc(x.ten||'—')} · ${esc(x.vitri).replace(/\s*·.*/,'')}<br><span class="hint">${x.t} · ${x.how}</span></span><span class="v">${esc(x.ketluan)} (${x.diem||'—'})</span></div>`).join('');}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
+const AIPROMPT=`Bạn là trợ lý tuyển dụng. Từ JD ở cuối, hãy tạo CHÂN DUNG SƠ VẤN để nhân viên tuyển dụng (TA) gọi sơ vấn ứng viên.
+
+CHỈ trả về đúng MỘT khối JSON theo mẫu dưới. KHÔNG viết thêm lời nào, KHÔNG bọc trong markdown. Giữ nguyên tên các trường.
+
+QUY TẮC:
+- loaiCung: 3–4 điều kiện BẮT BUỘC dạng có/không (thiếu 1 là loại). VD: nhận ca xoay, ở gần nơi làm, đi làm được ngay, lương trong khoảng. Mỗi dòng 1 điều kiện, ngắn gọn.
+- tieuChi: 4–6 tiêu chí chấm. Mỗi tiêu chí gồm:
+  - ten: tên ngắn
+  - nhom: CHỈ một trong: Want to, Can do, Culture fit
+  - w: trọng số (số nguyên %), tất cả cộng lại = 100
+  - hoi: 1 câu hỏi HÀNH VI bắt đầu bằng "Kể về một lần..." (hỏi việc ĐÃ xảy ra; KHÔNG hỏi "nếu/sẽ", KHÔNG hỏi "có...không")
+  - tot: dấu hiệu trả lời tốt (ngắn)
+  - xau: dấu hiệu cờ đỏ (ngắn)
+- Vì là SƠ VẤN: nhóm Want to chiếm trọng số cao nhất; Can do và Culture fit trọng số nhỏ (chỉ lấy tín hiệu).
+- TUYỆT ĐỐI KHÔNG tạo tiêu chí về tuổi, giới tính, hôn nhân, thai sản, quê quán, tôn giáo, ngoại hình.
+
+MẪU (điền theo JD, giữ đúng cấu trúc):
+{
+  "vitri": "Tên vị trí · khu vực",
+  "loaiCung": ["...", "...", "..."],
+  "tieuChi": [
+    {"ten":"...","nhom":"Want to","w":25,"hoi":"Kể về một lần...","tot":"...","xau":"..."}
+  ]
+}
+
+JD:
+[DÁN JD VÀO ĐÂY]`;
+function copyPrompt(){const t=document.getElementById('aiPrompt');t.select();const done=()=>{document.getElementById('pBtn').textContent='✓ Đã copy';setTimeout(()=>document.getElementById('pBtn').textContent='Copy prompt',1500);};navigator.clipboard?navigator.clipboard.writeText(t.value).then(done).catch(()=>{document.execCommand('copy');done();}):(document.execCommand('copy'),done());}
+function showAiMsg(m,err){const el=document.getElementById('aiMsg');el.textContent=m;el.style.color=err?'var(--red)':'var(--green)';}
+function fillFromAI(){let raw=(document.getElementById('aiResult').value||'').trim();if(!raw){showAiMsg('Chưa dán kết quả AI.',true);return;}
+  raw=raw.replace(/```json/gi,'').replace(/```/g,'');const a=raw.indexOf('{'),b=raw.lastIndexOf('}');
+  if(a<0||b<0){showAiMsg('Không thấy JSON. Bảo AI "chỉ trả JSON đúng mẫu" rồi dán lại.',true);return;}
+  let o;try{o=JSON.parse(raw.slice(a,b+1));}catch(e){showAiMsg('Kết quả chưa đúng JSON. Bảo AI "chỉ trả JSON đúng mẫu, không viết gì thêm" rồi dán lại.',true);return;}
+  if(!o.tieuChi||!Array.isArray(o.tieuChi)){showAiMsg('Thiếu phần tiêu chí. Dán lại kết quả đầy đủ.',true);return;}
+  cd.vitri=o.vitri||cd.vitri;cd.lc=Array.isArray(o.loaiCung)?o.loaiCung.map(String):[];
+  cd.tc=o.tieuChi.map(t=>({ten:t.ten||'',nhom:['Want to','Can do','Culture fit'].includes(t.nhom)?t.nhom:'Want to',w:parseInt(t.w)||0,hoi:t.hoi||'',tot:t.tot||'',xau:t.xau||''}));
+  renderCD();showAiMsg('✓ Đã tự điền chân dung. Kiểm tra lại rồi bấm "Đẩy vào phiếu →".',false);}
+document.getElementById('aiPrompt').value=AIPROMPT;
+if(GS_URL){var gu=document.getElementById('gsUrl');gu.value=GS_URL;gu.readOnly=true;}
+loadMau();pushToForm();
+</script>
+</body>
+</html>
